@@ -7,13 +7,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Tela inicial -->
+  <div id="menu">
+    <h1>🐍 Snake Game</h1>
+    <button id="startBtn">Iniciar Jogo</button>
+  </div>
+
   <h1>Snake</h1>
   <div class="wrap">
     <canvas id="game" aria-label="Canvas do jogo"></canvas>
     <div id="hud">
       <div id="score">Pontos: 0</div>
       <div id="level">Nível: 1</div>
-      <div id="controls">Use ← ↑ → ↓ ou WASD. Pressione Espaço para reiniciar.</div>
+      <div id="controls">
+        Use ← ↑ → ↓ ou WASD<br>
+        Espaço reinicia · P pausa
+      </div>
+      <button id="pauseBtn">⏸️ Pausar</button>
     </div>
 
     <!-- Controles móveis -->
