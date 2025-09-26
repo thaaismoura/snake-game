@@ -12,7 +12,18 @@
     <canvas id="game" aria-label="Canvas do jogo"></canvas>
     <div id="hud">
       <div id="score">Pontos: 0</div>
+      <div id="level">Nível: 1</div>
       <div id="controls">Use ← ↑ → ↓ ou WASD. Pressione Espaço para reiniciar.</div>
+    </div>
+
+    <!-- Controles móveis -->
+    <div id="mobile-controls" class="mobile-controls">
+      <button data-dir="up">⬆️</button>
+      <div>
+        <button data-dir="left">⬅️</button>
+        <button data-dir="down">⬇️</button>
+        <button data-dir="right">➡️</button>
+      </div>
     </div>
   </div>
   <script src="script.js"></script>
