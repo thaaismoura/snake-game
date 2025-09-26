@@ -1,16 +1,19 @@
-// Jogo da cobrinha - versão com níveis e controles móveis
+// Jogo da cobrinha - versão com menu inicial + pausa
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const levelEl = document.getElementById('level');
+const pauseBtn = document.getElementById('pauseBtn');
+const menu = document.getElementById('menu');
+const startBtn = document.getElementById('startBtn');
 
-const TILE = 20;         // tamanho do tile em px
-const GRID = 20;         // número de tiles por linha/coluna
+const TILE = 20;
+const GRID = 20;
 canvas.width = TILE * GRID;
 canvas.height = TILE * GRID;
 
 // Estado do jogo
-let snake, dir, nextDir, apple, score, gameOver, level, tickBase, tickCurrent;
+let snake, dir, nextDir, apple, score, gameOver, level, tickBase, tickCurrent, paused;
 
 // Inicializa / reinicia
 function resetGame() {
@@ -19,14 +22,15 @@ function resetGame() {
     {x: Math.floor(GRID/2)-1, y: Math.floor(GRID/2)},
     {x: Math.floor(GRID/2)-2, y: Math.floor(GRID/2)}
   ];
-  dir = {x: 1, y: 0};      // indo para a direita
+  dir = {x: 1, y: 0};
   nextDir = {...dir};
   apple = spawnApple();
   score = 0;
   level = 1;
-  tickBase = 250;   // ms (começa devagar)
+  tickBase = 250;
   tickCurrent = tickBase;
   gameOver = false;
+  paused = false;
   updateHUD();
 }
 
@@ -43,20 +47,17 @@ function updateHUD(){
   levelEl.textContent = 'Nível: ' + level;
 }
 
-// Lógica de atualização (movimentação, comer maçã, colisões)
+// Lógica de atualização
 function update() {
-  if (gameOver) return;
+  if (gameOver || paused) return;
   if (!(nextDir.x === -dir.x && nextDir.y === -dir.y)) dir = nextDir;
 
   const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
-  // colisão com paredes
   if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) {
     gameOver = true;
     return;
   }
-
-  // colisão com o corpo
   if (snake.some(s => s.x === head.x && s.y === head.y)) {
     gameOver = true;
     return;
@@ -64,16 +65,12 @@ function update() {
 
   snake.unshift(head);
 
-  // comer maçã
   if (head.x === apple.x && head.y === apple.y) {
     score += 1;
-
-    // sobe de nível a cada 5 maçãs
     if (score % 5 === 0) {
       level += 1;
-      tickCurrent = Math.max(60, tickBase - level * 15); // acelera (até mínimo 60ms)
+      tickCurrent = Math.max(60, tickBase - level * 15);
     }
-
     apple = spawnApple();
     updateHUD();
   } else {
@@ -97,7 +94,7 @@ function draw() {
     roundRectFill(s.x * TILE + 1, s.y * TILE + 1, TILE-2, TILE-2, 4);
   }
 
-  // overlay de game over
+  // overlay game over
   if (gameOver) {
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -106,11 +103,13 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 10);
     ctx.font = '14px system-ui, Arial';
-    ctx.fillText('Pressione Espaço ou Toque para reiniciar', canvas.width/2, canvas.height/2 + 16);
+    ctx.fillText('Clique ou pressione Espaço para reiniciar', canvas.width/2, canvas.height/2 + 16);
+
+    setTimeout(()=> menu.style.display = 'flex', 1000);
   }
 }
 
-// helper rounded rect
+// helper
 function roundRectFill(x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x+r, y);
@@ -122,7 +121,7 @@ function roundRectFill(x, y, w, h, r){
   ctx.fill();
 }
 
-// loop controlado por tempo
+// loop
 let last = 0;
 function loop(ms){
   if (!last) last = ms;
@@ -141,6 +140,7 @@ window.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setNextDir(-1,0);
   if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setNextDir(1,0);
   if (e.key === ' ' && gameOver) { e.preventDefault(); resetGame(); }
+  if (e.key.toLowerCase() === 'p') togglePause();
 });
 
 function setNextDir(x,y){
@@ -148,10 +148,8 @@ function setNextDir(x,y){
   nextDir = {x,y};
 }
 
-// restart ao clicar/tocar no canvas
-canvas.addEventListener('click', ()=>{
-  if (gameOver) resetGame();
-});
+// restart canvas
+canvas.addEventListener('click', ()=>{ if (gameOver) resetGame(); });
 
 // controles móveis
 document.querySelectorAll('#mobile-controls button').forEach(btn=>{
@@ -172,6 +170,16 @@ document.querySelectorAll('#mobile-controls button').forEach(btn=>{
   });
 });
 
-// inicializa
-resetGame();
-requestAnimationFrame(loop);
+// pausa
+pauseBtn.addEventListener("click", togglePause);
+function togglePause() {
+  paused = !paused;
+  pauseBtn.textContent = paused ? "▶️ Retomar" : "⏸️ Pausar";
+}
+
+// botão iniciar
+startBtn.addEventListener('click', () => {
+  menu.style.display = 'none';
+  resetGame();
+  requestAnimationFrame(loop);
+});
