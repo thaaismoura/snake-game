@@ -1,10 +1,10 @@
-:root{
+:root {
   --bg: #f3f7fb;
   --card: #ffffff;
   --accent: #2b8a3e;
 }
 *{box-sizing:border-box}
-body{
+body {
   margin:0;
   font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   background:var(--bg);
@@ -17,7 +17,7 @@ body{
 }
 h1{margin:0; font-size:1.6rem}
 .wrap{display:flex; flex-direction:column; align-items:center;}
-canvas{
+canvas {
   background:var(--card);
   border:2px solid #222;
   width: min(90vw, 480px);
@@ -25,30 +25,37 @@ canvas{
   image-rendering: pixelated;
   box-shadow: 0 6px 18px rgba(10,10,10,0.06);
 }
-#hud{margin-top:8px; text-align:center;}
-#score{font-weight:700;}
-#controls{font-size:0.9rem; color:#444;}
-.mobile-controls{
-  margin-top:10px;
-  display:flex;
-  gap:8px;
-  justify-content:center;
+#hud {
+  margin-top:8px;
+  text-align:center;
 }
-.mobile-controls button{
-  padding:10px 14px;
-  border-radius:8px;
-  font-size:18px;
-  touch-action: manipulation;
+#score, #level {
+  font-weight:700;
 }
-.mobile-controls{
-  margin-top:10px;
-  display:flex;
-  gap:8px;
-  justify-content:center;
+#controls {
+  font-size:0.9rem;
+  color:#444;
 }
-.mobile-controls button{
-  padding:10px 14px;
-  border-radius:8px;
-  font-size:18px;
+
+/* Controles móveis */
+#mobile-controls {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+#mobile-controls div {
+  display: flex;
+  gap: 6px;
+}
+#mobile-controls button {
+  padding: 14px;
+  font-size: 22px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
   touch-action: manipulation;
 }
