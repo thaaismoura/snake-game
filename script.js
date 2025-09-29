@@ -1,4 +1,4 @@
-// Jogo da cobrinha - versão com menu inicial + pausa
+// Jogo da cobrinha - versão com menu inicial + pausa + sons + fundo
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -11,6 +11,14 @@ const TILE = 20;
 const GRID = 20;
 canvas.width = TILE * GRID;
 canvas.height = TILE * GRID;
+
+// Sons
+const eatSound = new Audio("eat.mp3");
+const moveSound = new Audio("move.mp3");
+
+// Fundo
+const bgImg = new Image();
+bgImg.src = "fundo.jpg";
 
 // Estado do jogo
 let snake, dir, nextDir, apple, score, gameOver, level, tickBase, tickCurrent, paused;
@@ -64,9 +72,14 @@ function update() {
   }
 
   snake.unshift(head);
+  moveSound.currentTime = 0;
+  moveSound.play();
 
   if (head.x === apple.x && head.y === apple.y) {
     score += 1;
+    eatSound.currentTime = 0;
+    eatSound.play();
+
     if (score % 5 === 0) {
       level += 1;
       tickCurrent = Math.max(60, tickBase - level * 15);
@@ -80,8 +93,13 @@ function update() {
 
 // Desenho
 function draw() {
-  ctx.fillStyle = '#e6eef6';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // fundo
+  if (bgImg.complete) {
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#e6eef6';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
 
   // maçã
   ctx.fillStyle = '#d93b3b';
