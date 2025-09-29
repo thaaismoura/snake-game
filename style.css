@@ -63,8 +63,8 @@ canvas {
   gap: 10px;
 }
 #mobile-controls button {
-  padding: 24px;        /* maior área clicável */
-  font-size: 32px;      /* emojis maiores */
+  padding: 24px;
+  font-size: 32px;
   border: none;
   background: var(--accent);
   color: white;
