@@ -93,13 +93,9 @@ function update() {
 
 // Desenho
 function draw() {
-  // fundo
-  if (bgImg.complete) {
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-  } else {
-    ctx.fillStyle = '#e6eef6';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
+  // fundo simples
+  ctx.fillStyle = '#e6eef6';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   // maçã
   ctx.fillStyle = '#d93b3b';
@@ -208,3 +204,4 @@ startBtn.addEventListener('click', () => {
   resetGame();
   requestAnimationFrame(loop);
 });
+
