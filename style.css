@@ -56,19 +56,19 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 #mobile-controls div {
   display: flex;
-  gap: 6px;
+  gap: 10px;
 }
 #mobile-controls button {
-  padding: 14px;
-  font-size: 22px;
+  padding: 24px;        /* maior área clicável */
+  font-size: 32px;      /* emojis maiores */
   border: none;
   background: var(--accent);
   color: white;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
   touch-action: manipulation;
 }
