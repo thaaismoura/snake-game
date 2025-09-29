@@ -1,4 +1,4 @@
-// Jogo da cobrinha - versão com menu inicial + pausa + sons + fundo
+// Jogo da cobrinha - versão com sons + fundo + créditos
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -73,12 +73,12 @@ function update() {
 
   snake.unshift(head);
   moveSound.currentTime = 0;
-  moveSound.play();
+  moveSound.play().catch(()=>{});
 
   if (head.x === apple.x && head.y === apple.y) {
     score += 1;
     eatSound.currentTime = 0;
-    eatSound.play();
+    eatSound.play().catch(()=>{});
 
     if (score % 5 === 0) {
       level += 1;
@@ -195,9 +195,16 @@ function togglePause() {
   pauseBtn.textContent = paused ? "▶️ Retomar" : "⏸️ Pausar";
 }
 
-// botão iniciar
+// botão iniciar (desbloqueia áudio)
 startBtn.addEventListener('click', () => {
   menu.style.display = 'none';
+
+  // desbloquear áudio no mobile
+  eatSound.play().catch(()=>{});
+  moveSound.play().catch(()=>{});
+  eatSound.pause();
+  moveSound.pause();
+
   resetGame();
   requestAnimationFrame(loop);
 });
