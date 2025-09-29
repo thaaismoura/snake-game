@@ -1,4 +1,4 @@
-// Snake Game - versão com fundo, sons e créditos
+// script.js — Snake Game com sons sintetizados (WebAudio), fundo e créditos
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -12,20 +12,63 @@ const GRID = 20;
 canvas.width = TILE * GRID;
 canvas.height = TILE * GRID;
 
-// Sons
-const eatSound = new Audio("eat.mp3");
-const moveSound = new Audio("move.mp3");
+/* --- ÁUDIO: WebAudio (não precisa de mp3) --- */
+let audioCtx = null;
+try {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+} catch (e) {
+  audioCtx = null;
+  console.warn('WebAudio não disponível — sons serão ignorados.');
+}
 
-// Fundo
+// função auxiliar que cria um tom curto com envelope
+function makeTone(duration = 0.08, freqStart = 800, freqEnd = 300, type = 'sine') {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(Math.max(1, freqStart), now);
+  // rampa de frequência (descendente) para soar mais natural
+  if (freqEnd && freqEnd > 0) {
+    // use exponential Ramp (mais natural) — evitar zero
+    osc.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), now + duration);
+  }
+
+  // envelope de ganho (ataque rápido, queda expon.)
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.45, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(now);
+  osc.stop(now + duration + 0.02);
+}
+
+// sons do jogo
+function playMove() {
+  // som curtinho — tipo "click" a cada passo
+  makeTone(0.045, 1200, 800, 'square');
+}
+function playEat() {
+  // som de "comer": um tom descendente um pouco mais longo
+  makeTone(0.12, 1200, 300, 'sine');
+}
+
+/* --- Fundo (imagem) --- */
 const bgImg = new Image();
-bgImg.src = "fundo.jpg";
+bgImg.src = "fundo.jpg"; // se não existir, usamos fallback de cor
 let bgLoaded = false;
 bgImg.onload = () => { bgLoaded = true; };
+bgImg.onerror = () => { bgLoaded = false; console.warn('fundo.jpg não carregou — usando cor fallback.'); };
 
-// Estado do jogo
+/* --- Estado do jogo --- */
 let snake, dir, nextDir, apple, score, gameOver, level, tickBase, tickCurrent, paused;
 
-// Inicializa / reinicia
+/* --- Inicializa / reinicia --- */
 function resetGame() {
   snake = [
     {x: Math.floor(GRID/2), y: Math.floor(GRID/2)},
@@ -57,7 +100,7 @@ function updateHUD(){
   levelEl.textContent = 'Nível: ' + level;
 }
 
-// Lógica de atualização
+/* --- Lógica de atualização --- */
 function update() {
   if (gameOver || paused) return;
   if (!(nextDir.x === -dir.x && nextDir.y === -dir.y)) dir = nextDir;
@@ -74,13 +117,13 @@ function update() {
   }
 
   snake.unshift(head);
-  moveSound.currentTime = 0;
-  moveSound.play().catch(()=>{});
+
+  // som de movimento (curto)
+  try { playMove(); } catch(e){ /* silenciar erros de áudio */ }
 
   if (head.x === apple.x && head.y === apple.y) {
     score += 1;
-    eatSound.currentTime = 0;
-    eatSound.play().catch(()=>{});
+    try { playEat(); } catch(e){}
 
     if (score % 5 === 0) {
       level += 1;
@@ -93,10 +136,11 @@ function update() {
   }
 }
 
-// Desenho
+/* --- Desenho --- */
 function draw() {
   // fundo (imagem ou fallback cor)
   if (bgLoaded) {
+    // desenha imagem esticada pro canvas
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   } else {
     ctx.fillStyle = '#e6eef6';
@@ -129,7 +173,7 @@ function draw() {
   }
 }
 
-// helper
+/* --- helper --- */
 function roundRectFill(x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x+r, y);
@@ -141,7 +185,7 @@ function roundRectFill(x, y, w, h, r){
   ctx.fill();
 }
 
-// loop
+/* --- loop --- */
 let last = 0;
 function loop(ms){
   if (!last) last = ms;
@@ -153,7 +197,7 @@ function loop(ms){
   requestAnimationFrame(loop);
 }
 
-// controles teclado
+/* --- controles teclado --- */
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') setNextDir(0,-1);
   if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setNextDir(0,1);
@@ -168,10 +212,10 @@ function setNextDir(x,y){
   nextDir = {x,y};
 }
 
-// restart canvas
+/* --- reiniciar canvas --- */
 canvas.addEventListener('click', ()=>{ if (gameOver) resetGame(); });
 
-// controles móveis
+/* --- controles móveis (touch/mousedown) --- */
 document.querySelectorAll('#mobile-controls button').forEach(btn=>{
   btn.addEventListener('touchstart', (e)=>{
     e.preventDefault();
@@ -190,22 +234,21 @@ document.querySelectorAll('#mobile-controls button').forEach(btn=>{
   });
 });
 
-// pausa
+/* --- pausa --- */
 pauseBtn.addEventListener("click", togglePause);
 function togglePause() {
   paused = !paused;
   pauseBtn.textContent = paused ? "▶️ Retomar" : "⏸️ Pausar";
 }
 
-// botão iniciar (desbloqueia áudio)
+/* --- botão iniciar (desbloqueia áudio) --- */
 startBtn.addEventListener('click', () => {
   menu.style.display = 'none';
 
-  // desbloquear áudio no mobile
-  eatSound.play().catch(()=>{});
-  moveSound.play().catch(()=>{});
-  eatSound.pause();
-  moveSound.pause();
+  // desbloquear áudio no mobile (resume do AudioContext)
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(()=>{});
+  }
 
   resetGame();
   requestAnimationFrame(loop);
