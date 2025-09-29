@@ -1,4 +1,4 @@
-// Jogo da cobrinha - versão com sons + fundo + créditos
+// Snake Game - versão com fundo, sons e créditos
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -19,6 +19,8 @@ const moveSound = new Audio("move.mp3");
 // Fundo
 const bgImg = new Image();
 bgImg.src = "fundo.jpg";
+let bgLoaded = false;
+bgImg.onload = () => { bgLoaded = true; };
 
 // Estado do jogo
 let snake, dir, nextDir, apple, score, gameOver, level, tickBase, tickCurrent, paused;
@@ -93,9 +95,13 @@ function update() {
 
 // Desenho
 function draw() {
-  // fundo simples
-  ctx.fillStyle = '#e6eef6';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // fundo (imagem ou fallback cor)
+  if (bgLoaded) {
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#e6eef6';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
 
   // maçã
   ctx.fillStyle = '#d93b3b';
@@ -107,7 +113,6 @@ function draw() {
     ctx.fillStyle = i===0 ? '#14632a' : '#2b8a3e';
     roundRectFill(s.x * TILE + 1, s.y * TILE + 1, TILE-2, TILE-2, 4);
   }
-}
 
   // overlay game over
   if (gameOver) {
@@ -205,5 +210,3 @@ startBtn.addEventListener('click', () => {
   resetGame();
   requestAnimationFrame(loop);
 });
-
-
