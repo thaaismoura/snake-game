@@ -107,6 +107,7 @@ function draw() {
     ctx.fillStyle = i===0 ? '#14632a' : '#2b8a3e';
     roundRectFill(s.x * TILE + 1, s.y * TILE + 1, TILE-2, TILE-2, 4);
   }
+}
 
   // overlay game over
   if (gameOver) {
@@ -204,4 +205,5 @@ startBtn.addEventListener('click', () => {
   resetGame();
   requestAnimationFrame(loop);
 });
+
 
